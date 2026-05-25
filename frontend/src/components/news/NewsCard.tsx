@@ -8,7 +8,7 @@ import { relativeTime } from '@/lib/format';
 import { describeError } from '@/api/client';
 import {
   payloadFromArticle,
-  useBookmarkedUrlSet,
+  useBookmarkInfo,
   useToggleBookmark,
 } from '@/hooks/useBookmarkSync';
 import { useRecordHistory } from '@/hooks/useRecordHistory';
@@ -20,26 +20,31 @@ interface NewsCardProps {
 }
 
 export function NewsCard({ article, category }: NewsCardProps) {
-  const bookmarked = useBookmarkedUrlSet();
+  const { isBookmarked, id: existingId } = useBookmarkInfo(article.url);
   const toggle = useToggleBookmark();
   const record = useRecordHistory();
-
-  const isBookmarked = bookmarked.has(article.url);
 
   const handleToggle = (event: MouseEvent): void => {
     event.preventDefault();
     event.stopPropagation();
-    toggle.mutate(
-      { url: article.url, payload: payloadFromArticle(article, category) },
-      {
-        onSuccess: ({ added }) => {
-          toast.success(added ? 'Bookmarked.' : 'Bookmark removed.');
-        },
-        onError: (error) => {
-          toast.error(describeError(error, 'Could not update bookmark.'));
-        },
+    // Snapshot the decision before mutating so the network branch
+    // never has to disambiguate against an optimistically-updated cache.
+    const vars =
+      isBookmarked && existingId !== null
+        ? ({ action: 'remove', url: article.url, id: existingId } as const)
+        : ({
+            action: 'add',
+            url: article.url,
+            payload: payloadFromArticle(article, category),
+          } as const);
+    toggle.mutate(vars, {
+      onSuccess: ({ added }) => {
+        toast.success(added ? 'Bookmarked.' : 'Bookmark removed.');
       },
-    );
+      onError: (error) => {
+        toast.error(describeError(error, 'Could not update bookmark.'));
+      },
+    });
   };
 
   const handleRead = (): void => {

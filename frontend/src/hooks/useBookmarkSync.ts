@@ -45,8 +45,21 @@ export function useBookmarkedUrlSet(): Set<string> {
 }
 
 /**
- * Single mutation that toggles a bookmark by URL.
- * Optimistic: updates the index cache immediately, rolls back on error.
+ * Caller-supplied snapshot of "what we're about to do". Making the
+ * action explicit avoids a subtle bug where the mutationFn would
+ * re-read the cache AFTER onMutate had already injected an optimistic
+ * placeholder, then mistake the placeholder for an existing bookmark
+ * and try to DELETE a negative ID.
+ */
+export type ToggleBookmarkVars =
+  | { action: 'add'; url: string; payload: CreateBookmarkPayload }
+  | { action: 'remove'; url: string; id: number };
+
+/**
+ * Toggle a bookmark by URL. The decision (add vs remove) is computed
+ * by the caller from the bookmark index and passed in via `action`,
+ * so the network branch never has to disambiguate against an
+ * optimistically-updated cache.
  */
 export function useToggleBookmark() {
   const queryClient = useQueryClient();
@@ -54,37 +67,36 @@ export function useToggleBookmark() {
   return useMutation<
     { added: boolean },
     Error,
-    { url: string; payload: CreateBookmarkPayload },
-    { previous: BookmarkIndexEntry[] | undefined; existingId: number | null }
+    ToggleBookmarkVars,
+    { previous: BookmarkIndexEntry[] | undefined }
   >({
-    mutationFn: async ({ url, payload }) => {
-      const cache = queryClient.getQueryData<BookmarkIndexEntry[]>(indexKey) ?? [];
-      const existing = cache.find((b) => b.url === url);
-      if (existing !== undefined) {
-        await deleteBookmark(existing.id);
+    mutationFn: async (vars) => {
+      if (vars.action === 'remove') {
+        await deleteBookmark(vars.id);
         return { added: false };
       }
-      await createBookmark(payload);
+      await createBookmark(vars.payload);
       return { added: true };
     },
-    onMutate: async ({ url }) => {
+    onMutate: async (vars) => {
       await queryClient.cancelQueries({ queryKey: indexKey });
       const previous = queryClient.getQueryData<BookmarkIndexEntry[]>(indexKey);
-      const existing = previous?.find((b) => b.url === url) ?? null;
 
-      if (existing !== null) {
+      if (vars.action === 'remove') {
         queryClient.setQueryData<BookmarkIndexEntry[]>(
           indexKey,
-          (prev) => prev?.filter((b) => b.url !== url) ?? [],
+          (prev) => prev?.filter((b) => b.url !== vars.url) ?? [],
         );
       } else {
+        // Negative placeholder id — gets replaced by the real one when
+        // the index query is refetched in onSettled.
         queryClient.setQueryData<BookmarkIndexEntry[]>(indexKey, (prev) => [
-          { id: -Date.now(), url },
+          { id: -Date.now(), url: vars.url },
           ...(prev ?? []),
         ]);
       }
 
-      return { previous, existingId: existing?.id ?? null };
+      return { previous };
     },
     onError: (_err, _vars, context) => {
       if (context?.previous !== undefined) {
@@ -96,6 +108,24 @@ export function useToggleBookmark() {
       void queryClient.invalidateQueries({ queryKey: ['stats'] });
     },
   });
+}
+
+/**
+ * Resolves what the toggle button on a given URL should do right now.
+ * Caller passes the URL; we return `{ isBookmarked, id }` so the caller
+ * can hand both to `useToggleBookmark`'s mutate() with full information.
+ */
+export function useBookmarkInfo(url: string): { isBookmarked: boolean; id: number | null } {
+  const { data } = useBookmarkIndex();
+  return useMemo(() => {
+    // Ignore optimistic placeholders (negative IDs from onMutate). They
+    // shouldn't drive a remove action — the server has nothing to delete.
+    const found = data?.find((b) => b.url === url && b.id > 0);
+    return {
+      isBookmarked: found !== undefined,
+      id: found?.id ?? null,
+    };
+  }, [data, url]);
 }
 
 /** Helper: build a CreateBookmarkPayload from a NewsArticle. */
@@ -122,4 +152,3 @@ export function payloadFromArticle(
     category,
   };
 }
-
