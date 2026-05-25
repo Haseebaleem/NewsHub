@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Models\Preference;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -18,11 +19,15 @@ class AuthController extends Controller
     public function register(RegisterRequest $request): JsonResponse
     {
         $user = DB::transaction(function () use ($request): User {
-            return User::create([
+            $user = User::create([
                 'name' => $request->string('name')->toString(),
                 'email' => $request->string('email')->lower()->toString(),
                 'password' => $request->string('password')->toString(),
             ]);
+
+            $user->preference()->create(Preference::DEFAULTS);
+
+            return $user;
         });
 
         $token = $user->createToken('auth')->plainTextToken;
