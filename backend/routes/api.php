@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BookmarkController;
 use App\Http\Controllers\Api\PreferenceController;
+use App\Http\Controllers\Api\ReadingHistoryController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function (): void {
@@ -27,4 +28,8 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::delete('bookmarks/{bookmark}', [BookmarkController::class, 'destroy'])
         ->whereNumber('bookmark')
         ->name('bookmarks.destroy');
+
+    Route::get('reading-history', [ReadingHistoryController::class, 'index'])->name('history.index');
+    Route::post('reading-history', [ReadingHistoryController::class, 'store'])->name('history.store');
+    Route::delete('reading-history', [ReadingHistoryController::class, 'clear'])->name('history.clear');
 });
