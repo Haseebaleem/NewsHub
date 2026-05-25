@@ -7,13 +7,13 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\News\SearchNewsRequest;
 use App\Http\Requests\News\TopHeadlinesRequest;
-use App\Services\NewsApiClient;
+use App\Services\NewsService;
 use Illuminate\Http\JsonResponse;
 use RuntimeException;
 
 class NewsController extends Controller
 {
-    public function __construct(private readonly NewsApiClient $client)
+    public function __construct(private readonly NewsService $client)
     {
     }
 
