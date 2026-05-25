@@ -23,7 +23,10 @@ export function QueryProvider({ children }: PropsWithChildren) {
   return (
     <QueryClientProvider client={client}>
       {children}
-      {import.meta.env.DEV ? <ReactQueryDevtools initialIsOpen={false} /> : null}
+      {/* Devtools are dev-only. Vite replaces import.meta.env.DEV with a
+          literal `false` in production, so the && short-circuits and the
+          devtools module gets tree-shaken out of the prod bundle. */}
+      {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
   );
 }
