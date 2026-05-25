@@ -24,14 +24,14 @@
 - Live password-strength meter on registration, eye-toggle on every password field
 
 **News**
-- Top headlines by country + category, proxied through the backend so the NewsAPI key never reaches the browser
-- Search across the full NewsAPI index with a persistent recent-searches list
-- All responses cached for 10 minutes on the server to protect upstream quota
+- Top headlines by country + category, proxied through the backend so the GNews API key never reaches the browser
+- Search across the full GNews index with a persistent recent-searches list
+- All responses cached for 10 minutes on the server to protect the 100 req/day free-tier quota
 - Mixed-category home feed: one call per preferred category in parallel, merged and de-duped client-side
 - Infinite scroll on category, search, and bookmarks pages via IntersectionObserver
 
 **Personal data**
-- Bookmarks store the full article snapshot — saved cards keep rendering even if NewsAPI removes the upstream article
+- Bookmarks store the full article snapshot — saved cards keep rendering even if GNews drops the upstream article
 - Bookmarks page groups by date (Today / Yesterday / Earlier this week / Earlier) with client-side filtering
 - Reading history records on every "Read" click; rendered as a vertical timeline with a clear-history confirmation dialog
 - Stats page with 4 headline numbers, a 30-day reading-activity line chart, a per-category bar chart, and a reading-streak badge
@@ -98,13 +98,13 @@ Mentioning the tutorial origin transparently — learning from quality educators
 
 ## 💡 Design Decisions
 
-1. **Article snapshots, not just URLs.** Bookmarks store `title`, `description`, `image_url`, `source`, `author`, `published_at` — not just the article URL. If NewsAPI removes the article a week later, the user's saved card still renders.
+1. **Article snapshots, not just URLs.** Bookmarks store `title`, `description`, `image_url`, `source`, `author`, `published_at` — not just the article URL. If GNews drops the article a week later, the user's saved card still renders.
 
 2. **DB-level uniqueness, not just app checks.** `bookmarks(user_id, article_url)` has a real `UNIQUE` constraint. The controller catches the resulting `23505` (Postgres) / `23000` (SQLite/MySQL) and returns a friendly 409, but the guarantee lives where it can't be raced.
 
 3. **Generic 401 on every auth failure.** Login returns `{"error": "invalid_credentials"}` for both wrong-password and unknown-email cases. An attacker can't enumerate which emails are registered just by watching responses.
 
-4. **Server-side news proxy with sorted-param cache keys.** The browser never sees the NewsAPI key. Cache keys hash sorted params so `?country=in&category=tech` and `?category=tech&country=in` hit the same entry — both readable from `storage/logs/laravel.log` at debug level for manual QA.
+4. **Server-side news proxy with sorted-param cache keys.** The browser never sees the GNews API key. Cache keys hash sorted params so `?country=in&category=tech` and `?category=tech&country=in` hit the same entry — both readable from `storage/logs/laravel.log` at debug level for manual QA. The backend's `NewsService` also normalizes GNews's shape (`image`, `totalArticles`, source-as-object) into the NewsAPI-compatible shape the frontend reads, so swapping providers never broke a single component.
 
 5. **Token-only Sanctum.** No `statefulApi()` middleware, no SPA cookie dance. The frontend keeps its bearer token in `localStorage` (under `newshub.auth`) and sends `Authorization: Bearer <token>` on every authed request. Simpler mental model, simpler CORS.
 
@@ -132,10 +132,10 @@ Mentioning the tutorial origin transparently — learning from quality educators
 │  • Geist variable fonts          │                  │                        │
 └──────────────────────────────────┘                  └──────┬─────────────┬───┘
                                                              │             │
-                                              X-Api-Key      │             │ SQL
+                                              ?apikey=...     │             │ SQL
                                                              ▼             ▼
                                                    ┌──────────────┐  ┌──────────────┐
-                                                   │ newsapi.org  │  │ PostgreSQL   │
+                                                   │ gnews.io     │  │ PostgreSQL   │
                                                    │ (cached 10m) │  │ newshub      │
                                                    └──────────────┘  └──────────────┘
 ```
@@ -149,7 +149,7 @@ Mentioning the tutorial origin transparently — learning from quality educators
 - Composer 2.x
 - PostgreSQL 14+
 - Node.js 18+ and npm
-- A free [NewsAPI](https://newsapi.org/) key
+- A free [GNews API](https://gnews.io/) key (sign up at gnews.io — 100 requests/day on the free tier)
 
 ### Backend setup
 
@@ -162,7 +162,7 @@ php artisan key:generate
 
 Open `backend/.env` and set:
 - `DB_PASSWORD` to your Postgres password
-- `NEWS_API_KEY` to your NewsAPI key
+- `NEWS_API_KEY` to your GNews API key
 
 Create the database and run migrations:
 
@@ -234,7 +234,7 @@ All endpoints return JSON with a `data` or `error` envelope. Authed routes requi
 
 ## 🔐 Security Practices
 
-- **NewsAPI key never leaves the server.** Sent only via the `X-Api-Key` header from the Laravel app to newsapi.org.
+- **GNews API key never leaves the server.** Sent only via the `apikey` query parameter from the Laravel app to gnews.io.
 - **`.env` is gitignored on both sides; `.env.example` contains only placeholders.** Verified with `git grep`.
 - **Password hashing:** Laravel default bcrypt (12 rounds), 4 rounds in test config.
 - **Rate limiting:** named limiters per route group (see [Design Decisions](#-design-decisions)).
