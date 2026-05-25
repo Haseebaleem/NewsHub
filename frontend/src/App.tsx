@@ -9,7 +9,7 @@ import { SearchPage } from '@/pages/search/SearchPage';
 import { BookmarksPage } from '@/pages/bookmarks/BookmarksPage';
 import { HistoryPage } from '@/pages/history/HistoryPage';
 import { StatsPage } from '@/pages/stats/StatsPage';
-import { PlaceholderPage } from '@/pages/PlaceholderPage';
+import { SettingsPage } from '@/pages/settings/SettingsPage';
 
 function App() {
   return (
@@ -28,10 +28,7 @@ function App() {
           <Route path="/bookmarks" element={<BookmarksPage />} />
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/stats" element={<StatsPage />} />
-          <Route
-            path="/settings"
-            element={<PlaceholderPage title="Settings" subtitle="Preferences, profile, account." />}
-          />
+          <Route path="/settings" element={<SettingsPage />} />
         </Route>
       </Route>
 
