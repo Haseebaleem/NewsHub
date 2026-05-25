@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\BookmarkController;
 use App\Http\Controllers\Api\NewsController;
 use App\Http\Controllers\Api\PreferenceController;
 use App\Http\Controllers\Api\ReadingHistoryController;
+use App\Http\Controllers\Api\StatsController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('throttle:news')->prefix('news')->group(function (): void {
@@ -40,4 +41,6 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function (): void {
     Route::get('reading-history', [ReadingHistoryController::class, 'index'])->name('history.index');
     Route::post('reading-history', [ReadingHistoryController::class, 'store'])->name('history.store');
     Route::delete('reading-history', [ReadingHistoryController::class, 'clear'])->name('history.clear');
+
+    Route::get('stats', [StatsController::class, 'show'])->name('stats.show');
 });
