@@ -4,9 +4,15 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BookmarkController;
+use App\Http\Controllers\Api\NewsController;
 use App\Http\Controllers\Api\PreferenceController;
 use App\Http\Controllers\Api\ReadingHistoryController;
 use Illuminate\Support\Facades\Route;
+
+Route::prefix('news')->group(function (): void {
+    Route::get('top-headlines', [NewsController::class, 'topHeadlines'])->name('news.top-headlines');
+    Route::get('search', [NewsController::class, 'search'])->name('news.search');
+});
 
 Route::prefix('auth')->group(function (): void {
     Route::post('register', [AuthController::class, 'register'])->name('auth.register');

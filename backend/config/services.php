@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'newsapi' => [
+        'key' => env('NEWS_API_KEY'),
+        'base_url' => env('NEWS_API_BASE_URL', 'https://newsapi.org/v2'),
+        'cache_ttl' => (int) env('NEWS_API_CACHE_TTL', 600),
+    ],
+
 ];
