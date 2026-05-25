@@ -8,6 +8,7 @@ import { CategoryPage } from '@/pages/category/CategoryPage';
 import { SearchPage } from '@/pages/search/SearchPage';
 import { BookmarksPage } from '@/pages/bookmarks/BookmarksPage';
 import { HistoryPage } from '@/pages/history/HistoryPage';
+import { StatsPage } from '@/pages/stats/StatsPage';
 import { PlaceholderPage } from '@/pages/PlaceholderPage';
 
 function App() {
@@ -26,10 +27,7 @@ function App() {
           <Route path="/search" element={<SearchPage />} />
           <Route path="/bookmarks" element={<BookmarksPage />} />
           <Route path="/history" element={<HistoryPage />} />
-          <Route
-            path="/stats"
-            element={<PlaceholderPage title="Stats" subtitle="Your weekly and monthly reading activity." />}
-          />
+          <Route path="/stats" element={<StatsPage />} />
           <Route
             path="/settings"
             element={<PlaceholderPage title="Settings" subtitle="Preferences, profile, account." />}
