@@ -6,6 +6,7 @@ import { RegisterPage } from '@/pages/auth/RegisterPage';
 import { FeedPage } from '@/pages/feed/FeedPage';
 import { CategoryPage } from '@/pages/category/CategoryPage';
 import { SearchPage } from '@/pages/search/SearchPage';
+import { BookmarksPage } from '@/pages/bookmarks/BookmarksPage';
 import { PlaceholderPage } from '@/pages/PlaceholderPage';
 
 function App() {
@@ -22,10 +23,7 @@ function App() {
           <Route path="/feed" element={<FeedPage />} />
           <Route path="/category/:slug" element={<CategoryPage />} />
           <Route path="/search" element={<SearchPage />} />
-          <Route
-            path="/bookmarks"
-            element={<PlaceholderPage title="Bookmarks" subtitle="Articles you saved for later." />}
-          />
+          <Route path="/bookmarks" element={<BookmarksPage />} />
           <Route
             path="/history"
             element={<PlaceholderPage title="Reading History" subtitle="Recent articles you opened." />}
