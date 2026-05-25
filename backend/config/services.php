@@ -36,8 +36,12 @@ return [
     ],
 
     'newsapi' => [
+        // Provider is GNews (https://gnews.io). The `newsapi` config key is
+        // kept for now as the existing service still reads it; commit 2
+        // renames it to `news` alongside the rewrite.
+        'provider' => env('NEWS_API_PROVIDER', 'gnews'),
         'key' => env('NEWS_API_KEY'),
-        'base_url' => env('NEWS_API_BASE_URL', 'https://newsapi.org/v2'),
+        'base_url' => env('NEWS_API_BASE_URL', 'https://gnews.io/api/v4'),
         'cache_ttl' => (int) env('NEWS_API_CACHE_TTL', 600),
     ],
 
