@@ -11,7 +11,40 @@
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-v3-38BDF8?logo=tailwindcss&logoColor=white)
 ![License MIT](https://img.shields.io/badge/license-MIT-green)
 
-> **Status — feature complete.** Laravel 11 API with 37 PHPUnit feature tests passing, and a React 18 + Vite + TypeScript frontend with a dark-first UI inspired by Vercel / Linear / Raycast. Phase 1 (backend) and Phase 2 (frontend) are both done.
+> **Status — feature complete.** Laravel 11 API with 47 PHPUnit feature tests passing, and a React 18 + Vite + TypeScript frontend with a dark-first UI inspired by Vercel / Linear / Raycast. Phase 1 (backend) and Phase 2 (frontend) are both done.
+
+---
+
+## 🎯 About
+
+NewsHub is a personal news aggregator designed around three pillars that distinguish it from generic news readers:
+
+- **Security-first API proxying** — third-party news API keys never reach the browser, with server-side caching to reduce upstream calls and stay within free-tier limits
+- **Personalization through persistence** — bookmarks, reading history, and category preferences create a feed that adapts to the user over time
+- **Full-stack architecture as a showcase** — demonstrates production patterns across PHP/Laravel and TypeScript/React with strict type safety, comprehensive test coverage, and modern UI sensibilities
+
+This project was designed to fill a specific portfolio gap: demonstrating Laravel/PHP expertise (a stack used through years of client work) with the same production-grade discipline applied to my Node.js projects.
+
+---
+
+## 🎬 Quick Demo
+
+Want to explore the app without creating an account? Use the pre-seeded demo:
+
+📧 **Email:** `demo@newshub.local`
+🔑 **Password:** `Demo123!`
+
+The demo account comes pre-populated with:
+- 10 bookmarks across technology, business, and other categories (spread over the last 14 days for a realistic "grouped by date" view)
+- 30 reading history entries across the last month (so the stats page shows meaningful charts immediately)
+- Configured preferences (dark theme, default categories: technology + business)
+
+Or register your own account to start fresh.
+
+**Setup steps to use the demo:**
+1. Clone the repo and follow the [Getting Started](#-getting-started) instructions
+2. Run `php artisan db:seed` in the backend folder to populate demo data
+3. Visit `http://localhost:5173` and log in with the demo credentials above
 
 ---
 
@@ -50,16 +83,6 @@
 - All input validated via Laravel Form Requests
 - Consistent JSON response envelope (`{data, message}` / `{error, message, errors}`)
 - CORS restricted to the configured frontend origin
-
----
-
-## 📖 Project Origin
-
-This project began as a learning exercise — a basic React news reader built while following Code with Harry's React tutorial series in 2024, when I was practicing React state management and external API consumption. The original implementation was frontend-only, displayed top headlines across 7 categories with infinite scroll, and hardcoded the NewsAPI key in the source.
-
-In 2026, I rebuilt it from scratch as NewsHub — a full-stack personal news aggregator with bookmarks, reading history, and personalized feeds. The rebuild addressed three things: a real security issue (API key now server-side only), a portfolio gap (none of my other projects demonstrated PHP/Laravel), and product expansion (single-page reader → personalized news hub with persistent user data).
-
-Mentioning the tutorial origin transparently — learning from quality educators is part of every developer's journey, and rebuilding learning projects with production-grade architecture is itself a valuable skill.
 
 ---
 
@@ -171,6 +194,12 @@ createdb newshub
 php artisan migrate
 ```
 
+Optionally seed the demo account (see [Quick Demo](#-quick-demo) above):
+
+```bash
+php artisan db:seed
+```
+
 Start the API:
 
 ```bash
@@ -252,7 +281,7 @@ cd backend
 php artisan test
 ```
 
-Ships with **37 feature tests / 108 assertions** covering every endpoint, validation gate, and authorization boundary. Tests run against SQLite in-memory for speed — the controllers handle both Postgres and SQLite unique-violation codes so the same code paths execute under both engines.
+Ships with **47 feature tests / 142 assertions** covering every endpoint, validation gate, authorization boundary, GNews field mapping, and the demo seeder. Tests run against SQLite in-memory for speed — the controllers handle both Postgres and SQLite unique-violation codes so the same code paths execute under both engines.
 
 ---
 
