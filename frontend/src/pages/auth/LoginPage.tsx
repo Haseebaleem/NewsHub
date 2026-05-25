@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Sparkles, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,10 @@ import { AuthLayout } from '@/pages/auth/AuthLayout';
 import { login as loginRequest, type LoginPayload } from '@/api/auth';
 import { describeError } from '@/api/client';
 import { useAuthStore } from '@/stores/auth.store';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+
+const DEMO_EMAIL = 'demo@newshub.local';
+const DEMO_PASSWORD = 'Demo123!';
 
 const schema = z.object({
   email: z.string().email('Enter a valid email'),
@@ -23,6 +27,7 @@ type FormValues = z.infer<typeof schema>;
 
 export function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const [demoDismissed, setDemoDismissed] = useLocalStorage('newshub.demo-box-dismissed', false);
   const navigate = useNavigate();
   const location = useLocation();
   const setSession = useAuthStore((s) => s.setSession);
@@ -30,6 +35,7 @@ export function LoginPage() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -51,6 +57,11 @@ export function LoginPage() {
 
   const onSubmit = (values: FormValues): void => {
     mutation.mutate(values);
+  };
+
+  const fillDemoCredentials = (): void => {
+    setValue('email', DEMO_EMAIL, { shouldValidate: true });
+    setValue('password', DEMO_PASSWORD, { shouldValidate: true });
   };
 
   return (
@@ -114,6 +125,46 @@ export function LoginPage() {
           )}
         </Button>
       </form>
+
+      {!demoDismissed ? (
+        <div className="relative mt-8 rounded-lg border border-border bg-card/50 p-4 text-sm">
+          <button
+            type="button"
+            onClick={() => setDemoDismissed(true)}
+            className="absolute right-2 top-2 grid h-6 w-6 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            aria-label="Dismiss demo credentials"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+
+          <div className="mb-2 flex items-center gap-2 pr-6">
+            <Sparkles className="h-4 w-4 text-brand" aria-hidden />
+            <span className="font-medium text-foreground">Try the demo</span>
+          </div>
+          <p className="mb-3 pr-4 text-muted-foreground">
+            Skip registration with the pre-seeded demo account. Comes with 10 bookmarks and 30
+            reading-history entries so the stats and timeline pages have meaningful data.
+          </p>
+          <div className="space-y-1 font-mono text-xs">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-muted-foreground">Email</span>
+              <code className="truncate text-foreground">{DEMO_EMAIL}</code>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-muted-foreground">Password</span>
+              <code className="text-foreground">{DEMO_PASSWORD}</code>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={fillDemoCredentials}
+            className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-brand/30 bg-brand/5 px-2.5 py-1.5 text-xs font-medium text-brand transition-colors hover:bg-brand/10"
+          >
+            <Sparkles className="h-3 w-3" aria-hidden />
+            Fill demo credentials
+          </button>
+        </div>
+      ) : null}
     </AuthLayout>
   );
 }
