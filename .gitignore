@@ -5,21 +5,24 @@
 *.swp
 *.swo
 
-# Logs / build artifacts at repo root
+# Logs
 *.log
 
-# Backend (Laravel) — most ignores live in backend/.gitignore
-backend/.env
+# Environment files — never commit secrets. The .env.example files
+# in backend/ and frontend/ are the committed templates.
+.env
+**/.env
 backend/.env.backup
 backend/.env.production
-
-# Frontend (Vite) — most ignores live in frontend/.gitignore
-frontend/.env
 frontend/.env.local
 frontend/.env.*.local
 
-# Dependencies and build outputs (covered by sub-gitignores, listed here for safety)
+# Dependencies (covered by sub-gitignores too, repeated here as defense in depth)
 node_modules/
+**/node_modules/
 vendor/
+**/vendor/
+
+# Build outputs
 dist/
 build/
