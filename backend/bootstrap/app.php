@@ -19,7 +19,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->statefulApi();
+        // Token-only API: clients send a Sanctum bearer token in the
+        // Authorization header, so we deliberately skip statefulApi()
+        // which is only needed for cookie-based SPA auth.
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (ValidationException $e, Request $request) {

@@ -80,6 +80,7 @@ class BookmarkController extends Controller
 
     private function isUniqueViolation(QueryException $e): bool
     {
-        return $e->getCode() === '23505';
+        // Postgres SQLSTATE 23505, generic SQL "23000" (MySQL/SQLite).
+        return in_array((string) $e->getCode(), ['23505', '23000'], true);
     }
 }
