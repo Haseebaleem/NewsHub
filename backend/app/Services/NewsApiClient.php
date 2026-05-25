@@ -24,13 +24,8 @@ class NewsApiClient
 
     public static function fromConfig(): self
     {
-        $key = (string) config('services.newsapi.key', '');
-        if ($key === '' || $key === 'your_newsapi_key_here') {
-            throw new RuntimeException('NEWS_API_KEY is not configured.');
-        }
-
         return new self(
-            apiKey: $key,
+            apiKey: (string) config('services.newsapi.key', ''),
             baseUrl: rtrim((string) config('services.newsapi.base_url', 'https://newsapi.org/v2'), '/'),
             cacheTtl: (int) config('services.newsapi.cache_ttl', 600),
         );
@@ -60,6 +55,10 @@ class NewsApiClient
      */
     private function get(string $endpoint, array $params): array
     {
+        if ($this->apiKey === '' || $this->apiKey === 'your_newsapi_key_here') {
+            throw new RuntimeException('News provider is not configured.', 503);
+        }
+
         $params = array_merge(['pageSize' => self::PAGE_SIZE], $params);
         $cacheKey = $this->cacheKey($endpoint, $params);
 
