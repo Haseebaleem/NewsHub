@@ -1,27 +1,52 @@
-import { Newspaper } from 'lucide-react';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { AppShell } from '@/components/layout/AppShell';
+import { RedirectIfAuthed, RequireAuth } from '@/components/RequireAuth';
+import { LoginPage } from '@/pages/auth/LoginPage';
+import { RegisterPage } from '@/pages/auth/RegisterPage';
+import { FeedPage } from '@/pages/feed/FeedPage';
+import { PlaceholderPage } from '@/pages/PlaceholderPage';
 
 function App() {
   return (
-    <main className="flex min-h-dvh items-center justify-center px-6">
-      <div className="flex max-w-xl flex-col items-center gap-6 text-center">
-        <div className="grid h-14 w-14 place-items-center rounded-xl border border-border bg-card">
-          <Newspaper className="h-7 w-7 text-brand" aria-hidden />
-        </div>
+    <Routes>
+      <Route element={<RedirectIfAuthed />}>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+      </Route>
 
-        <div className="space-y-2">
-          <h1 className="text-3xl font-semibold tracking-tight">NewsHub</h1>
-          <p className="text-sm text-muted-foreground">
-            Tailwind + shadcn theme tokens wired up. App shell, routing, and pages
-            land in the next commits.
-          </p>
-        </div>
+      <Route element={<RequireAuth />}>
+        <Route element={<AppShell />}>
+          <Route path="/" element={<Navigate to="/feed" replace />} />
+          <Route path="/feed" element={<FeedPage />} />
+          <Route
+            path="/category/:slug"
+            element={<PlaceholderPage title="Category" subtitle="Topic feed." />}
+          />
+          <Route
+            path="/search"
+            element={<PlaceholderPage title="Search" subtitle="Find articles across NewsAPI." />}
+          />
+          <Route
+            path="/bookmarks"
+            element={<PlaceholderPage title="Bookmarks" subtitle="Articles you saved for later." />}
+          />
+          <Route
+            path="/history"
+            element={<PlaceholderPage title="Reading History" subtitle="Recent articles you opened." />}
+          />
+          <Route
+            path="/stats"
+            element={<PlaceholderPage title="Stats" subtitle="Your weekly and monthly reading activity." />}
+          />
+          <Route
+            path="/settings"
+            element={<PlaceholderPage title="Settings" subtitle="Preferences, profile, account." />}
+          />
+        </Route>
+      </Route>
 
-        <code className="rounded-md border border-border bg-muted px-3 py-1.5 font-mono text-xs text-muted-foreground">
-          <span className="text-brand">●</span> dark theme · amber accent · Geist
-          ready
-        </code>
-      </div>
-    </main>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 
