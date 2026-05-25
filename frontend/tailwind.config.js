@@ -13,7 +13,7 @@ export default {
     extend: {
       fontFamily: {
         sans: [
-          'Geist',
+          '"Geist Variable"',
           'ui-sans-serif',
           'system-ui',
           '-apple-system',
@@ -22,7 +22,7 @@ export default {
           'sans-serif',
         ],
         mono: [
-          'Geist Mono',
+          '"Geist Mono Variable"',
           'ui-monospace',
           'SFMono-Regular',
           'Menlo',
