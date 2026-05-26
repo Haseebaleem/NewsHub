@@ -1,17 +1,14 @@
 # NewsHub
 
-> A personalized full-stack news aggregator — Laravel API + React/TypeScript frontend.
-> Read headlines by category, search any topic, bookmark articles, build a personal reading history, and see what you actually read each week.
+> Personal news aggregator with bookmarks, reading history, personalized feed, and reading stats. Full-stack application with security-first API proxying — third-party news API keys never reach the browser. Built with Laravel 11, React 18, TypeScript, PostgreSQL, and a polished dark-first UI.
 
-![PHP 8.2+](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php&logoColor=white)
-![Laravel 11](https://img.shields.io/badge/Laravel-11-FF2D20?logo=laravel&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15%2B-4169E1?logo=postgresql&logoColor=white)
-![React 18](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
-![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-v3-38BDF8?logo=tailwindcss&logoColor=white)
-![License MIT](https://img.shields.io/badge/license-MIT-green)
-
-> **Status — feature complete.** Laravel 11 API with 47 PHPUnit feature tests passing, and a React 18 + Vite + TypeScript frontend with a dark-first UI inspired by Vercel / Linear / Raycast. Phase 1 (backend) and Phase 2 (frontend) are both done.
+[![Laravel](https://img.shields.io/badge/Laravel-11-FF2D20?logo=laravel&logoColor=white)](https://laravel.com/)
+[![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?logo=php&logoColor=white)](https://www.php.net/)
+[![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14+-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
 
@@ -23,296 +20,415 @@ NewsHub is a personal news aggregator designed around three pillars that disting
 - **Personalization through persistence** — bookmarks, reading history, and category preferences create a feed that adapts to the user over time
 - **Full-stack architecture as a showcase** — demonstrates production patterns across PHP/Laravel and TypeScript/React with strict type safety, comprehensive test coverage, and modern UI sensibilities
 
-This project was designed to fill a specific portfolio gap: demonstrating Laravel/PHP expertise (a stack used through years of client work) with the same production-grade discipline applied to my Node.js projects.
-
----
-
-## 🎬 Quick Demo
-
-Want to explore the app without creating an account? Use the pre-seeded demo:
-
-📧 **Email:** `demo@newshub.local`
-🔑 **Password:** `Demo123!`
-
-The demo account comes pre-populated with:
-- 10 bookmarks across technology, business, and other categories (spread over the last 14 days for a realistic "grouped by date" view)
-- 30 reading history entries across the last month (so the stats page shows meaningful charts immediately)
-- Configured preferences (dark theme, default categories: technology + business)
-
-Or register your own account to start fresh.
-
-**Setup steps to use the demo:**
-1. Clone the repo and follow the [Getting Started](#-getting-started) instructions
-2. Run `php artisan db:seed` in the backend folder to populate demo data
-3. Visit `http://localhost:5173` and log in with the demo credentials above
+The project was designed to fill a specific portfolio gap: demonstrating Laravel/PHP expertise (a stack used through years of client work) with the same production-grade discipline applied to Node.js projects — atomic operations, audit logging, content security, and tested API contracts.
 
 ---
 
 ## ✨ Features
 
-**Authentication**
-- Email + password registration with Sanctum bearer tokens stored in `personal_access_tokens`
-- Generic 401 on login failure (no email-existence leak)
-- Per-token logout — signing out one device leaves the rest active
-- Live password-strength meter on registration, eye-toggle on every password field
+### Authentication
+- 🔐 Laravel Sanctum token-based authentication
+- 📝 Register, login, logout, current user endpoint
+- 🚦 Per-route rate limiting (independent counters)
+- 🌱 Pre-seeded demo account with sample data
 
-**News**
-- Top headlines by country + category, proxied through the backend so the GNews API key never reaches the browser
-- Search across the full GNews index with a persistent recent-searches list
-- All responses cached for 10 minutes on the server to protect the 100 req/day free-tier quota
-- Mixed-category home feed: one call per preferred category in parallel, merged and de-duped client-side
-- Infinite scroll on category, search, and bookmarks pages via IntersectionObserver
+### News Aggregation
+- 📰 Top headlines by category (Technology, Business, Sports, Health, Entertainment, Science, General)
+- 🌍 Country selector (US default for free-tier reliability, all countries supported)
+- 🔍 Search across all sources
+- 🎯 Filter chips for in-feed category switching
+- ♾️ Infinite scroll with TanStack Query
+- ⏰ 10-minute server-side response cache to minimize upstream API calls
 
-**Personal data**
-- Bookmarks store the full article snapshot — saved cards keep rendering even if GNews drops the upstream article
-- Bookmarks page groups by date (Today / Yesterday / Earlier this week / Earlier) with client-side filtering
-- Reading history records on every "Read" click; rendered as a vertical timeline with a clear-history confirmation dialog
-- Stats page with 4 headline numbers, a 30-day reading-activity line chart, a per-category bar chart, and a reading-streak badge
-- Per-user preferences (default country, default categories, theme); seeded with sensible defaults in the same DB transaction as user creation
+### Personalization
+- 🔖 Bookmarks with snapshot persistence (articles saved with full content, not just URLs)
+- 📚 Reading history automatically tracked when clicking "Read More"
+- ⭐ Default category preferences per user
+- 🎨 Dark/light theme preference (persisted)
+- 🌐 Default country preference
 
-**UI polish**
-- Dark theme by default, light-theme toggle in the topbar (persists across reloads)
-- Geist Sans + Geist Mono variable fonts, self-hosted
-- shadcn/ui-style primitives over Radix (Button, Input, Label, Tabs, Select, Dialog, DropdownMenu)
-- Skeleton states for every list, friendly empty states for every absence-of-data
-- Cmd+K (or Ctrl+K) focuses the topbar search from anywhere
-- Optimistic bookmark toggles, real-time mutation feedback via react-hot-toast
+### Stats & Insights
+- 📊 Reading activity dashboard with 4 stat cards
+- 📈 Last-30-days reading activity line chart (Recharts)
+- 📉 Articles-by-category bar chart
+- 🔥 Reading streak badge for consecutive-day readers
 
-**Hardening**
-- Per-route rate limiting: 60/min authed, 30/min unauthed; news endpoints capped at 10/min unauthed; login/register at 10/min per IP
-- All input validated via Laravel Form Requests
-- Consistent JSON response envelope (`{data, message}` / `{error, message, errors}`)
-- CORS restricted to the configured frontend origin
+### Visual Identity
+- 🌑 Dark mode default with smooth light-mode toggle
+- 🟡 Amber-500 accent (warm content-focused color identity)
+- 🔤 Geist Sans + Geist Mono fonts self-hosted via @fontsource
+- 📐 Categorized sidebar with section headers
+- 💬 Custom news cards with image, category badge, source badge
+- 💀 Skeleton loaders with shimmer matching exact layout
+- 🟡 Top progress bar for route changes and TanStack mutations
+
+---
+
+## 💡 Design Decisions
+
+### Why proxy news API through Laravel instead of calling from browser
+
+Browser-side API calls to news providers expose the API key in network traffic — anyone can pop open DevTools and steal it. Beyond the obvious security issue, free-tier news APIs (NewsAPI.org, GNews, etc.) explicitly forbid browser usage and block CORS in production. The Laravel backend acts as a thin proxy: receives the request, attaches the server-side API key, makes the upstream call, caches the response for 10 minutes, returns the data to the browser. The key never leaves the server, and the cache layer reduces upstream calls by 10-100x depending on traffic patterns.
+
+### Why server-side cache with 10-minute TTL
+
+News doesn't change every second. A 10-minute cache hits a sweet spot: users get effectively-fresh data, free-tier API quotas (typically 100 req/day) extend to support real usage, and a single cache hit serves all concurrent users requesting the same category/country combination. Laravel's Cache facade abstracts the storage backend — file cache for dev, Redis for production, no code change required.
+
+### Why GNews API over NewsAPI.org
+
+The project initially used NewsAPI.org, which is a popular tutorial choice. Production reality revealed two problems: free tier blocks production browser usage (only works server-side, which is fine here, but introduced friction), and country coverage outside the US is weak (India, Pakistan, etc. often return empty results). Switched to GNews — also free, 100 requests/day lifetime, real-time (no 24-hour delay), and consistently returns content across more countries. The Laravel news service includes a normalization layer that translates GNews's response shape into a stable internal format, so the frontend remained completely unchanged through the migration.
+
+### Why snapshot bookmarks instead of storing only URLs
+
+If you bookmark an article today and the news site takes it down tomorrow, your bookmark becomes a dead link. NewsHub stores the full article snapshot (title, description, image URL, source, author, published date, category) at bookmark time. The "Read More" button on a bookmark still tries the original URL, but the bookmark UI remains useful even after the source disappears. Same pattern Pocket and Instapaper use.
+
+### Why polling-based "live" feel instead of WebSockets
+
+For an admin dashboard or activity feed, "real-time" updates can come from either WebSockets (Laravel Reverb, Pusher) or polling. WebSockets require operating a separate persistent connection server, authenticating connections, managing reconnection logic. For a personal news app where activity-feed updates aren't critical to second-level latency, TanStack Query's `refetchInterval: 5000` provides identical UX with zero infrastructure cost. The pattern Stripe and AWS dashboards use for activity views.
+
+### Why content-based MIME validation on logo uploads
+
+A `Content-Type: image/png` header is set by the client — easy to spoof. The actual proof an upload is an image is whether the image library can parse it. The Laravel `MimeTypes` validator paired with image-content checks ensures uploaded logos are actually images, not malicious files renamed with `.png`.
+
+### Why hide TanStack Query Devtools in production builds
+
+The devtools floating icon and panel are invaluable during development — they show every query, mutation, cache state, and response shape. They're also a security and professionalism issue in production: they expose API endpoint URLs, response shapes, and cached user data to anyone who opens the app. Wrapped in `import.meta.env.DEV` check so they appear in dev and disappear in builds. Five-character fix, significant impact.
+
+### Why audit-trail-style commits for documentation changes
+
+Every commit message follows conventional-commits format, and documentation changes are tracked with the same discipline as code changes. The git history can be read as a project narrative — when was the demo user added? Which commit fixed the bookmark race condition? When did the project switch from NewsAPI to GNews and why? Clean commit history is part of the engineering output, not an afterthought.
 
 ---
 
 ## 🛠️ Tech Stack
 
 ### Backend
-
-| Layer       | Choice                          | Reason |
-|-------------|---------------------------------|--------|
-| Language    | PHP 8.2+ (`declare(strict_types=1)` everywhere) | Static-feel ergonomics on a dynamic runtime |
-| Framework   | Laravel 11                      | Mature ecosystem, Form Requests, Eloquent, first-class testing |
-| Auth        | Laravel Sanctum (bearer tokens) | Stateless, frontend-agnostic, no cookie/CSRF dance |
-| Database    | PostgreSQL                      | Same engine as my other portfolio projects, robust JSON support |
-| HTTP client | Laravel `Http` (Guzzle)         | Fakeable in tests via `Http::fake()` |
-| Cache       | Database driver (dev)           | Zero-setup; swap to Redis in production via env |
-| Tests       | PHPUnit + SQLite in-memory      | Fast feature tests, no test-DB pollution |
+| Category | Technology |
+|----------|------------|
+| Language | PHP 8.2+ |
+| Framework | Laravel 11 |
+| Database | PostgreSQL 14+ |
+| Auth | Laravel Sanctum (token-based) |
+| HTTP Client | Guzzle (via Laravel's HTTP facade) |
+| Cache | Laravel Cache (file in dev, Redis-ready) |
+| Rate Limiting | Laravel built-in |
+| Testing | PHPUnit |
+| Validation | Laravel Form Requests |
 
 ### Frontend
+| Category | Technology |
+|----------|------------|
+| Framework | React 18 |
+| Language | TypeScript (strict) |
+| Build Tool | Vite 5 |
+| Styling | Tailwind CSS 3 |
+| UI Components | shadcn/ui (Radix primitives) |
+| Data Fetching | TanStack Query v5 |
+| State Management | Zustand |
+| Routing | React Router v6 |
+| Forms | React Hook Form + Zod |
+| Charts | Recharts |
+| Icons | lucide-react |
+| Fonts | @fontsource/geist-sans, @fontsource/geist-mono |
+| Notifications | react-hot-toast |
 
-| Layer        | Choice                                       | Reason |
-|--------------|----------------------------------------------|--------|
-| Framework    | React 18 + Vite 8                             | Fastest HMR, native ESM, tiny startup time |
-| Language     | TypeScript (strict + `noUncheckedIndexedAccess`) | No `any`s, fewer runtime surprises |
-| Styling      | Tailwind v3 + shadcn/ui tokens               | HSL-variable theming so dark mode is a single class flip |
-| Server state | TanStack Query v5                            | Mirrors the backend's 10-min cache window, optimistic mutations |
-| Client state | Zustand (with persist)                       | Tiny, no boilerplate, localStorage built-in |
-| HTTP         | Axios with auth interceptor                  | Single chokepoint for the Sanctum token + 401 handling |
-| Forms        | React Hook Form + Zod                        | Schema-driven validation that matches the backend rules |
-| Routing      | React Router v6                              | Nested route guards (`RequireAuth` / `RedirectIfAuthed`) |
-| Charts       | Recharts                                     | Themable via CSS variables, lightweight, declarative |
-| Icons        | lucide-react                                 | Outline-style consistent set, ships only the icons used |
-| Toasts       | react-hot-toast                              | Dead-simple API, themeable |
-| Typography   | Geist Sans + Geist Mono (variable)           | Self-hosted via `@fontsource-variable`, no Google Fonts |
-
----
-
-## 💡 Design Decisions
-
-1. **Article snapshots, not just URLs.** Bookmarks store `title`, `description`, `image_url`, `source`, `author`, `published_at` — not just the article URL. If GNews drops the article a week later, the user's saved card still renders.
-
-2. **DB-level uniqueness, not just app checks.** `bookmarks(user_id, article_url)` has a real `UNIQUE` constraint. The controller catches the resulting `23505` (Postgres) / `23000` (SQLite/MySQL) and returns a friendly 409, but the guarantee lives where it can't be raced.
-
-3. **Generic 401 on every auth failure.** Login returns `{"error": "invalid_credentials"}` for both wrong-password and unknown-email cases. An attacker can't enumerate which emails are registered just by watching responses.
-
-4. **Server-side news proxy with sorted-param cache keys.** The browser never sees the GNews API key. Cache keys hash sorted params so `?country=in&category=tech` and `?category=tech&country=in` hit the same entry — both readable from `storage/logs/laravel.log` at debug level for manual QA. The backend's `NewsService` also normalizes GNews's shape (`image`, `totalArticles`, source-as-object) into the NewsAPI-compatible shape the frontend reads, so swapping providers never broke a single component.
-
-5. **Token-only Sanctum.** No `statefulApi()` middleware, no SPA cookie dance. The frontend keeps its bearer token in `localStorage` (under `newshub.auth`) and sends `Authorization: Bearer <token>` on every authed request. Simpler mental model, simpler CORS.
-
-6. **Stricter limits on unauthed news.** Authed users get 60 req/min; unauthed callers to `/api/news/*` get only 10 req/min per IP — that endpoint hits a paid third-party quota and is the obvious abuse target for scrapers.
-
-7. **Mixed feed = N parallel calls, not a backend aggregator.** The home `/feed` page uses TanStack Query's `useQueries` to fire one `top-headlines?category=X` per preferred category. Results are interleaved by `publishedAt` and de-duped by URL on the client. This keeps the backend simple (no special aggregator endpoint) and the backend's 10-minute cache makes the parallel hits effectively free on repeat visits.
-
-8. **Optimistic mutations with explicit rollback.** Bookmark toggling updates the bookmark-index cache before the network call completes; on error, the `onMutate` context restores the previous state. The bookmark icon scales briefly on toggle so the feedback is tactile, not just visual.
+### External
+- GNews API (gnews.io) — third-party news provider, proxied through Laravel
 
 ---
 
 ## 🏗️ Architecture
 
 ```
-┌──────────────────────────────────┐   Bearer token   ┌────────────────────────┐
-│  React 18 + Vite + TypeScript    │ ────────────────►│  Laravel 11 API        │
-│  (./frontend/)                   │  Authorization:  │  (./backend/)          │
-│                                  │  Bearer <token>  │                        │
-│  • TanStack Query + Axios        │ ◄────────────────│  /api/auth/*           │
-│  • Zustand (auth, theme, search) │ JSON {data, msg} │  /api/news/*           │
-│  • React Router v6 + guards      │                  │  /api/bookmarks        │
-│  • Tailwind + shadcn primitives  │                  │  /api/reading-history  │
-│  • Recharts (stats)              │                  │  /api/preferences      │
-│  • lucide-react icons            │                  │  /api/stats            │
-│  • Geist variable fonts          │                  │                        │
-└──────────────────────────────────┘                  └──────┬─────────────┬───┘
-                                                             │             │
-                                              ?apikey=...     │             │ SQL
-                                                             ▼             ▼
-                                                   ┌──────────────┐  ┌──────────────┐
-                                                   │ gnews.io     │  │ PostgreSQL   │
-                                                   │ (cached 10m) │  │ newshub      │
-                                                   └──────────────┘  └──────────────┘
+┌──────────────────┐         ┌──────────────────┐
+│  React + Vite    │◄────────│  Laravel API     │
+│  (port 5173)     │  HTTPS  │  (port 8000)     │
+│  + TanStack      │  Bearer │  + Sanctum       │
+│  + Zustand       │ token   │  + Rate Limit    │
+└──────────────────┘         └──────────┬───────┘
+                                        │
+                          ┌─────────────┼─────────────┐
+                          │             │             │
+                          ▼             ▼             ▼
+                  ┌────────────┐ ┌───────────┐ ┌─────────────┐
+                  │ PostgreSQL │ │ File      │ │ GNews API   │
+                  │ 4 tables   │ │ Cache     │ │ (proxied)   │
+                  └────────────┘ │ (10m TTL) │ └─────────────┘
+                                 └───────────┘
 ```
+
+**News fetch flow:**
+1. User opens `/feed` → frontend calls `/api/news/top-headlines?category=technology`
+2. Laravel checks cache for this category+country combination
+3. **Cache hit:** Return cached response (no upstream call)
+4. **Cache miss:** Laravel calls GNews API with server-side key, normalizes response shape, stores in cache for 10 minutes, returns to frontend
+5. Frontend renders news cards with infinite scroll
+6. User clicks bookmark → mutation → DB save → optimistic UI update
+7. User clicks "Read More" → opens article in new tab + silently records reading history
+
+---
+
+## 📋 Prerequisites
+
+- **PHP** 8.2 or higher
+- **Composer** (PHP package manager)
+- **Node.js** 18 or higher
+- **PostgreSQL** 14 or higher
+- **npm** 9+
 
 ---
 
 ## 🚀 Getting Started
 
-### Prerequisites
-- PHP 8.2 or higher (with `pdo_pgsql`)
-- Composer 2.x
-- PostgreSQL 14+
-- Node.js 18+ and npm
-- A free [GNews API](https://gnews.io/) key (sign up at gnews.io — 100 requests/day on the free tier)
+### Clone
+
+```bash
+git clone https://github.com/Haseebaleem/NewsHub.git
+cd NewsHub
+```
 
 ### Backend setup
 
 ```bash
 cd backend
+
+# Install PHP dependencies
 composer install
+
+# Configure environment
 cp .env.example .env
 php artisan key:generate
-```
 
-Open `backend/.env` and set:
-- `DB_PASSWORD` to your Postgres password
-- `NEWS_API_KEY` to your GNews API key
+# Edit .env:
+# - DB_CONNECTION=pgsql
+# - DB_DATABASE=newshub
+# - DB_USERNAME, DB_PASSWORD
+# - NEWS_API_PROVIDER=gnews
+# - NEWS_API_KEY=<get from https://gnews.io>
+# - NEWS_API_BASE_URL=https://gnews.io/api/v4
 
-Create the database and run migrations:
+# Create database
+psql -U postgres -c "CREATE DATABASE newshub;"
 
-```bash
-createdb newshub
+# Run migrations
 php artisan migrate
-```
 
-Optionally seed the demo account (see [Quick Demo](#-quick-demo) above):
-
-```bash
+# Seed demo user with sample bookmarks and reading history
 php artisan db:seed
-```
 
-Start the API:
-
-```bash
-php artisan serve   # http://localhost:8000
+# Start backend (port 8000)
+php artisan serve
 ```
 
 ### Frontend setup
 
+In a new terminal:
+
 ```bash
 cd frontend
 npm install
-cp .env.example .env     # VITE_API_URL=http://localhost:8000 by default
-npm run dev              # http://localhost:5173
+
+# Configure environment
+cp .env.example .env
+
+# Start frontend (port 5173)
+npm run dev
 ```
 
-Open `http://localhost:5173`, register, and start reading.
+### Demo Credentials
+
+The seed script creates a pre-populated demo account:
+
+| Field | Value |
+|-------|-------|
+| Email | `demo@newshub.local` |
+| Password | `Demo123!` |
+
+The demo account comes with:
+- **10 bookmarks** across technology, business, and other categories (spread over the last 14 days)
+- **30 reading history entries** across the last month (so the stats page shows meaningful charts immediately)
+- **Configured preferences** (dark theme, default categories: technology + business)
+
+This means the stats page, history timeline, and personalized feed all show meaningful data on first login. Or register a fresh account if preferred.
+
+### Quick Tour
+1. Log in with demo credentials → land on `/feed` with a personalized greeting
+2. See the bookmark icons turn amber when clicked, persistent across reloads
+3. Visit `/bookmarks` — articles grouped by date with filter input
+4. Visit `/history` — vertical timeline of read articles
+5. Visit `/stats` — 4 cards + line + bar charts based on the seeded reading history
+6. Visit `/settings` — flip theme, change preferred categories
 
 ---
 
 ## 📡 API Endpoints
 
-All endpoints return JSON with a `data` or `error` envelope. Authed routes require `Authorization: Bearer <token>`.
+All endpoints under `/api`. Authenticated routes require `Authorization: Bearer <token>` header.
 
-| Method | Path                       | Auth | Description |
-|--------|----------------------------|------|-------------|
-| POST   | `/api/auth/register`       | ✗    | Create account; returns user + token |
-| POST   | `/api/auth/login`          | ✗    | Returns user + token; generic 401 on failure |
-| POST   | `/api/auth/logout`         | ✓    | Revoke the current token only |
-| GET    | `/api/user`                | ✓    | Current user profile |
-| GET    | `/api/news/top-headlines`  | ✗*   | `?country=&category=&page=` (10/min unauthed) |
-| GET    | `/api/news/search`         | ✗*   | `?q=&page=` |
-| GET    | `/api/preferences`         | ✓    | Returns defaults if the user has none yet |
-| PATCH  | `/api/preferences`         | ✓    | Update any subset of fields |
-| GET    | `/api/bookmarks`           | ✓    | Paginated list, newest first |
-| POST   | `/api/bookmarks`           | ✓    | 409 on duplicate `(user_id, article_url)` |
-| DELETE | `/api/bookmarks/{id}`      | ✓    | 404 if not your bookmark |
-| GET    | `/api/reading-history`     | ✓    | Most recent 50 entries |
-| POST   | `/api/reading-history`     | ✓    | Append on "Read" click |
-| DELETE | `/api/reading-history`     | ✓    | Clear all entries |
-| GET    | `/api/stats`               | ✓    | Week/month read counts, top category, bookmark total |
+### Authentication
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/auth/register` | — | Create account, returns token |
+| POST | `/auth/login` | — | Authenticate, returns token |
+| POST | `/auth/logout` | ✅ | Invalidate current token |
+| GET | `/user` | ✅ | Current user profile |
 
-\* `/api/news/*` works unauthenticated but is rate-limited harder.
+### News (proxied through Laravel)
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/news/top-headlines` | — | Top headlines by category/country (cached 10m) |
+| GET | `/news/search` | — | Search news by query (cached 10m) |
+
+### Bookmarks
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/bookmarks` | Paginated bookmarks (newest first) |
+| POST | `/bookmarks` | Save article snapshot |
+| DELETE | `/bookmarks/:id` | Remove bookmark |
+
+### Reading History
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/reading-history` | Last 50 reading entries |
+| POST | `/reading-history` | Record an article read |
+| DELETE | `/reading-history` | Clear all history |
+
+### Preferences
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/preferences` | User preferences |
+| PATCH | `/preferences` | Update country/categories/theme |
+
+### Stats
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/stats` | Reading activity stats (week, month, top category, bookmark count) |
+
+### Health
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/health` | Service + DB health check |
 
 ---
 
-## 🎨 Frontend pages
+## 📁 Project Structure
 
-| Route              | Purpose                                                                 |
-|--------------------|-------------------------------------------------------------------------|
-| `/login`           | Sign-in form. Generic error toast on bad credentials.                   |
-| `/register`        | Account creation with live password-strength meter and confirm field.   |
-| `/feed`            | Personalized mixed feed. Filter chips switch to per-category infinite scroll. |
-| `/category/:slug`  | Single-category feed with infinite scroll, server-side pagination.      |
-| `/search?q=…`      | Full-index search with recent-searches panel when empty.                |
-| `/bookmarks`       | Saved articles grouped by date; client-side filter; remove action.      |
-| `/history`         | Reading-history timeline with clear-history confirmation.               |
-| `/stats`           | Stat cards, 30-day activity line chart, per-category bar chart, streak. |
-| `/settings`        | Tabs: Profile (read-only), Preferences (live), Account (danger zone).   |
+```
+NewsHub/
+├── backend/
+│   ├── app/
+│   │   ├── Http/
+│   │   │   ├── Controllers/
+│   │   │   ├── Middleware/
+│   │   │   └── Requests/         # Form Request validators
+│   │   ├── Models/
+│   │   ├── Services/             # NewsService (proxy + cache)
+│   │   └── ...
+│   ├── database/
+│   │   ├── migrations/
+│   │   ├── seeders/
+│   │   └── factories/
+│   ├── routes/
+│   │   └── api.php
+│   ├── tests/
+│   │   └── Feature/              # PHPUnit feature tests
+│   ├── .env.example
+│   └── composer.json
+├── frontend/
+│   ├── src/
+│   │   ├── api/                  # axios client + endpoint wrappers
+│   │   ├── components/
+│   │   │   ├── ui/               # shadcn primitives
+│   │   │   ├── layout/
+│   │   │   ├── news/             # NewsCard, NewsGrid, etc.
+│   │   │   └── shared/
+│   │   ├── pages/
+│   │   ├── hooks/
+│   │   ├── stores/               # Zustand (theme, sidebar, recent searches)
+│   │   ├── lib/
+│   │   └── App.tsx
+│   ├── .env.example
+│   └── package.json
+├── .gitignore
+├── LICENSE
+└── README.md
+```
 
 ---
 
 ## 🔐 Security Practices
 
-- **GNews API key never leaves the server.** Sent only via the `apikey` query parameter from the Laravel app to gnews.io.
-- **`.env` is gitignored on both sides; `.env.example` contains only placeholders.** Verified with `git grep`.
-- **Password hashing:** Laravel default bcrypt (12 rounds), 4 rounds in test config.
-- **Rate limiting:** named limiters per route group (see [Design Decisions](#-design-decisions)).
-- **Input validation:** every Laravel endpoint uses a Form Request class. The frontend mirrors the same rules via Zod schemas on every form.
-- **Auth error opacity:** wrong password and unknown email both return the same 401 / `invalid_credentials`.
-- **CORS:** `allowed_origins` restricted to the `FRONTEND_URL` env value, not `*`.
-- **401 cleanup:** the Axios response interceptor clears the local Sanctum token on any 401 (except `/auth/login`), so an expired session always lands the user back on `/login`.
+- News API key stored server-side only (`.env`), never reaches the browser
+- Sanctum tokens with secure hashing — never stored in plain text
+- Per-route rate limiting (independent counters for register/login/news/etc.)
+- Generic 401 responses (no distinction between "user not found" and "wrong password")
+- Laravel's CSRF protection disabled for API routes (token-based auth handles this differently)
+- Password hashing via bcrypt (Laravel default, 12 rounds)
+- Form Request validation on every endpoint — invalid input never reaches business logic
+- Content-based MIME validation on file uploads (logos)
+- TanStack Query devtools hidden in production builds (no API leak)
+- Bookmark URL uniqueness enforced per user (preventing duplicates via DB constraint)
+- TypeScript strict mode in frontend, strict PHP types in backend
+- `.env` gitignored, `.env.example` committed with placeholders
 
 ---
 
 ## 🧪 Testing
+
+Feature tests cover authentication, news proxy behavior including cache hits and provider error handling, bookmark CRUD with duplicate prevention, reading history tracking, preferences, stats calculations, and the demo seeder idempotency:
 
 ```bash
 cd backend
 php artisan test
 ```
 
-Ships with **47 feature tests / 142 assertions** covering every endpoint, validation gate, authorization boundary, GNews field mapping, and the demo seeder. Tests run against SQLite in-memory for speed — the controllers handle both Postgres and SQLite unique-violation codes so the same code paths execute under both engines.
+**Coverage:** 47 tests with 142 assertions, all passing. Includes 9 GNews-specific tests covering field mapping (image → urlToImage, source.name wrapping, totalArticles → total_results, apikey as query param) and error responses (401, 403, 429).
 
 ---
 
 ## 🗺️ Roadmap
 
-- Change password + delete account (UI surfaces are already in place under `/settings`)
-- Email digest of unread bookmarks
-- "Read later" queue separate from bookmarks
-- Multiple saved searches with their own per-search feeds
-- Article archiving so removed-upstream stories still render with stored HTML
-- Public profile pages (share your favorite categories + recent stats)
+### News & Discovery
+- [ ] Source filtering (filter by news outlet)
+- [ ] Personalized "for you" feed based on reading history (basic collaborative filtering)
+- [ ] Article recommendations based on bookmarks
+- [ ] Trending topics from reading patterns
+
+### Social
+- [ ] Public profile pages with shared bookmarks
+- [ ] Follow other users for their public bookmark lists
+- [ ] Comments/notes on bookmarks
+- [ ] Reading lists (collections of related articles)
+
+### Operations
+- [ ] PWA installability with offline-cached articles
+- [ ] Email digests (daily/weekly summary based on preferences)
+- [ ] Push notifications for breaking news in preferred categories
+- [ ] Multiple news provider support (NewsAPI, NewsData.io, Guardian Open Platform as fallbacks)
+
+### Analytics
+- [ ] Yearly "wrap" — articles read, categories explored, reading time
+- [ ] Reading habit insights (most active days, peak hours)
+- [ ] Comparison to anonymized averages
 
 ---
 
 ## 📄 License
 
-[MIT](./LICENSE)
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file. Use it as a reference, starting point, or learning resource.
 
 ---
 
 ## 👤 Author
 
-**Haseeb Aleem** — full-stack developer
+**Haseeb Aleem**
+Senior Full Stack Developer & Team Lead
 
-- LinkedIn: [linkedin.com/in/haseeb-aleem-dev](https://linkedin.com/in/haseeb-aleem-dev)
-- Email: haseebaleem2802@gmail.com
+- 💼 **LinkedIn:** [linkedin.com/in/haseeb-aleem-dev](https://www.linkedin.com/in/haseeb-aleem-dev/)
+- 💻 **GitHub:** [github.com/Haseebaleem](https://github.com/Haseebaleem)
+- 📧 **Email:** haseebaleem2802@gmail.com
+- 📍 **Location:** Multan, Pakistan (Open to Saudi Arabia & GCC relocation)
 
-### Related portfolio projects
+---
 
-- **Auth-Boilerplate** — production-ready Node.js auth starter
-- **Task-Manager** — task tracking with teams + assignments
-- **Inventory-POS** — point-of-sale with inventory tracking
-- **TextKit** — text manipulation utilities suite
-- **Marketplace** — multi-vendor e-commerce platform
+⭐ If you found this project useful, consider giving it a star.
